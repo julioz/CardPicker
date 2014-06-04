@@ -5,7 +5,7 @@
     tools:context=".MainActivity" >
 
     <br.com.zynger.cardpicker.CardPicker
-        android:id="@+id/cardpicker_container"
+        android:id="@+id/cardpicker"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

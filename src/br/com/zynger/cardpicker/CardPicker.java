@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import br.com.zynger.cardpicker.AnimationFactory.AnimationEndListener;
 import br.com.zynger.cardpicker.AnimationFactory.AnimationStartListener;
-import br.com.zynger.cardpicker.CardPagerAdapter.OnCardItemClickListener;
+import br.com.zynger.cardpicker.CardAdapter.OnCardClickListener;
 
 public class CardPicker extends RelativeLayout {
 
@@ -36,7 +36,7 @@ public class CardPicker extends RelativeLayout {
 
 	private boolean isAnimating = false;
 	private boolean isCardShown = false;
-	private CardPagerAdapter mCardAdapter;
+	private CardAdapter mCardAdapter;
 
 	public CardPicker(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -59,8 +59,6 @@ public class CardPicker extends RelativeLayout {
 		mWallet = (ImageView) findViewById(R.id.cardpicker_wallet);
 		mCard = (ImageView) findViewById(R.id.cardpicker_card);
 		mPager = (ViewPager) findViewById(R.id.cardpicker_pager);
-		mCardAdapter = new CardPagerAdapter();
-		mPager.setAdapter(mCardAdapter);
 
 		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mCard
 				.getLayoutParams();
@@ -76,24 +74,22 @@ public class CardPicker extends RelativeLayout {
 			}
 		});
 		
-		mCardAdapter.setOnCardItemClickListener(new OnCardItemClickListener() {
-			@Override
-			public void onCardClick(View card, int position) {
-				hide();
-			}
-		});
-		
 		setInitialState();
+	}
+	
+	public void setCardAdapter(CardAdapter cardAdapter) {
+		mCardAdapter = cardAdapter;
+		mPager.setAdapter(mCardAdapter);
 	}
 
 	private void setInitialState() {
-		setWalletClipDrawable(R.drawable.credit_card_blue);
+		Drawable blueCard = getContext().getResources().getDrawable(R.drawable.credit_card_blue);
+		setWalletClipDrawable(blueCard);
 		mWalletClipDrawable.setLevel(CARD_CLIP_MIN_VALUE);
 		mCard.setTranslationY(CARD_TRANSLATION_Y);
 	}
 	
-	private void setWalletClipDrawable(int resId) {
-		Drawable cardDrawable = getContext().getResources().getDrawable(resId);
+	private void setWalletClipDrawable(Drawable cardDrawable) {
 		mWalletClipDrawable = new ClipDrawable(cardDrawable, Gravity.TOP,
 				ClipDrawable.VERTICAL);
 		mCard.setImageDrawable(mWalletClipDrawable);
@@ -128,7 +124,7 @@ public class CardPicker extends RelativeLayout {
 			return;
 		}
 		
-		setWalletClipDrawable(mCardAdapter.getCardDrawableId(mPager.getCurrentItem()));
+		setWalletClipDrawable(mCardAdapter.getCardAsDrawable(getContext(), mPager.getCurrentItem()));
 		
 		isAnimating = true;
 		mAnimationFactory.fadeOutView(mPager, FADE_OUT_DURATION,
@@ -224,5 +220,20 @@ public class CardPicker extends RelativeLayout {
 		} else {
 			show();
 		}
+	}
+	
+	public void setOnCardClickListener(final OnCardClickListener onCardClickListener) {
+		mCardAdapter.setOnCardClickListener(new OnCardClickListener() {
+			@Override
+			public boolean onCardClick(View card, int position) {
+				if (isAnimating) return false;
+				
+				boolean userListenerReturn = onCardClickListener.onCardClick(card, position);
+				if (userListenerReturn) {
+					hide();
+				}
+				return userListenerReturn;
+			}
+		});
 	}
 }
