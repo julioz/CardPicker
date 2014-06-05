@@ -26,8 +26,11 @@ public class CardPicker extends RelativeLayout {
 	private final long SLIDE_CARD_DURATION = 300;
 	private final int CARD_CLIP_MAX_VALUE = 10000;
 	private final int CARD_CLIP_MIN_VALUE = 5700;
-	private final float CARD_TRANSLATION_Y = 120f;
-
+	private final int CARD_TRANSLATION_Y_DEFAULT = 70;
+	
+	private float mDensity;
+	private float mCardTranslationY;
+	
 	private AnimationFactory mAnimationFactory;
 	private CardPagerContainer mCardPager;
 	private ImageView mCard;
@@ -57,6 +60,8 @@ public class CardPicker extends RelativeLayout {
 				true);
 
 		mAnimationFactory = new AnimationFactory();
+		mDensity = getContext().getResources().getDisplayMetrics().density;
+		mCardTranslationY = CARD_TRANSLATION_Y_DEFAULT * mDensity;
 
 		mWallet = (ImageView) findViewById(R.id.cardpicker_wallet);
 		mCard = (ImageView) findViewById(R.id.cardpicker_card);
@@ -81,6 +86,10 @@ public class CardPicker extends RelativeLayout {
 		setInitialState();
 	}
 	
+	public void setCardTranslationY(float translationY) {
+		mCardTranslationY = mDensity * translationY;
+	}
+	
 	public void setCardAdapter(CardAdapter cardAdapter) {
 		mCardAdapter = cardAdapter;
 		mCardPager.setAdapter(mCardAdapter);
@@ -94,7 +103,7 @@ public class CardPicker extends RelativeLayout {
 		Drawable blueCard = getContext().getResources().getDrawable(R.drawable.credit_card_blue);
 		setWalletClipDrawable(blueCard);
 		mWalletClipDrawable.setLevel(CARD_CLIP_MIN_VALUE);
-		mCard.setTranslationY(CARD_TRANSLATION_Y);
+		mCard.setTranslationY(mCardTranslationY);
 	}
 	
 	private void setWalletClipDrawable(Drawable cardDrawable) {
@@ -104,7 +113,7 @@ public class CardPicker extends RelativeLayout {
 		mWalletClipDrawable.setLevel(CARD_CLIP_MAX_VALUE);
 	}
 
-	private void show() {
+	public void show() {
 		if (isAnimating) {
 			return;
 		}
@@ -127,7 +136,7 @@ public class CardPicker extends RelativeLayout {
 		});
 	}
 
-	private void hide() {
+	public void hide() {
 		if (isAnimating) {
 			return;
 		}
@@ -153,7 +162,7 @@ public class CardPicker extends RelativeLayout {
 	}
 	
 	private void slideUpCard(final AnimationEndListener endListener) {
-		mCard.animate().setDuration(SLIDE_CARD_DURATION).translationYBy(-CARD_TRANSLATION_Y)
+		mCard.animate().setDuration(SLIDE_CARD_DURATION).translationYBy(-mCardTranslationY)
 				.setListener(new AnimatorListener() {
 					@Override
 					public void onAnimationStart(Animator animation) {
@@ -188,7 +197,7 @@ public class CardPicker extends RelativeLayout {
 	}
 
 	private void slideDownCard(final AnimationEndListener endListener) {
-		mCard.animate().setDuration(SLIDE_CARD_DURATION).translationYBy(CARD_TRANSLATION_Y)
+		mCard.animate().setDuration(SLIDE_CARD_DURATION).translationYBy(mCardTranslationY)
 				.setListener(new AnimatorListener() {
 					@Override
 					public void onAnimationStart(Animator animation) {
@@ -237,6 +246,17 @@ public class CardPicker extends RelativeLayout {
 				if (isAnimating) return false;
 				
 				boolean userListenerReturn = onCardClickListener.onCardClick(card, position);
+				if (userListenerReturn) {
+					hide();
+				}
+				return userListenerReturn;
+			}
+
+			@Override
+			public boolean onCardBackgroundClick(View card, int position) {
+				if (isAnimating) return false;
+				
+				boolean userListenerReturn = onCardClickListener.onCardBackgroundClick(card, position);
 				if (userListenerReturn) {
 					hide();
 				}

@@ -16,6 +16,8 @@ public class CardPagerAdapter extends CardAdapter {
 	@Override
 	public View instantiateCard(ViewPager viewpager, int position) {
 		ImageView iv = new ImageView(viewpager.getContext());
+		int padding = Math.round(25 * viewpager.getContext().getResources().getDisplayMetrics().density);
+		iv.setPadding(padding , padding, padding, padding);
 		Drawable cardDrawable = viewpager.getContext().getResources()
 				.getDrawable(CARDS[position]);
 		iv.setImageDrawable(cardDrawable);

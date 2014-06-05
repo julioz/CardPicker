@@ -18,7 +18,7 @@ public abstract class CardAdapter extends PagerAdapter {
 	public final Object instantiateItem(ViewGroup viewPager, final int position) {
 		RelativeLayout layout = new RelativeLayout(viewPager.getContext());
 
-		View card = instantiateCard((ViewPager) viewPager, position);
+		final View card = instantiateCard((ViewPager) viewPager, position);
 
 		RelativeLayout.LayoutParams lps = new RelativeLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -34,6 +34,15 @@ public abstract class CardAdapter extends PagerAdapter {
 			}
 		});
 		layout.addView(card);
+		
+		layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mOnCardClickListener != null) {
+					mOnCardClickListener.onCardBackgroundClick(card, position);
+				}
+			}
+		});
 
 		((ViewPager) viewPager).addView(layout, 0);
 		return layout;
@@ -59,5 +68,6 @@ public abstract class CardAdapter extends PagerAdapter {
 	
 	public interface OnCardClickListener {
 		boolean onCardClick(View card, int position);
+		boolean onCardBackgroundClick(View card, int position);
 	}
 }

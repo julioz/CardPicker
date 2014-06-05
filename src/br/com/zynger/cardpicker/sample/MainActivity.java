@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		CardPicker cardPicker = (CardPicker) findViewById(R.id.cardpicker);
+		final CardPicker cardPicker = (CardPicker) findViewById(R.id.cardpicker);
 		CardPagerAdapter cardAdapter = new CardPagerAdapter();
 		cardPicker.setCardAdapter(cardAdapter);
 		
@@ -25,6 +25,11 @@ public class MainActivity extends Activity {
 			public boolean onCardClick(View card, int position) {
 				Toast.makeText(card.getContext(), "Clicked card " + position, Toast.LENGTH_SHORT).show();
 				Log.d("CardPicker", "clicked card " + position);
+				return true;
+			}
+
+			@Override
+			public boolean onCardBackgroundClick(View card, int position) {
 				return true;
 			}
 		});
