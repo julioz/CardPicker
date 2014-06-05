@@ -4,14 +4,15 @@ import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import br.com.zynger.cardpicker.AnimationFactory.AnimationEndListener;
@@ -22,13 +23,13 @@ public class CardPicker extends RelativeLayout {
 
 	private final long FADE_IN_DURATION = 300;
 	private final long FADE_OUT_DURATION = 300;
-	private final long SLIDE_CARD_DURATION = 500;
+	private final long SLIDE_CARD_DURATION = 300;
 	private final int CARD_CLIP_MAX_VALUE = 10000;
 	private final int CARD_CLIP_MIN_VALUE = 5700;
 	private final float CARD_TRANSLATION_Y = 120f;
 
 	private AnimationFactory mAnimationFactory;
-	private ViewPager mPager;
+	private CardPagerContainer mCardPager;
 	private ImageView mCard;
 	private ImageView mWallet;
 
@@ -51,14 +52,17 @@ public class CardPicker extends RelativeLayout {
 	}
 
 	private void init() {
-		LayoutInflater.from(getContext()).inflate(R.layout.cardpicker, this,
+		LayoutInflater inflater = LayoutInflater.from(getContext());
+		inflater.inflate(R.layout.cardpicker, this,
 				true);
 
 		mAnimationFactory = new AnimationFactory();
 
 		mWallet = (ImageView) findViewById(R.id.cardpicker_wallet);
 		mCard = (ImageView) findViewById(R.id.cardpicker_card);
-		mPager = (ViewPager) findViewById(R.id.cardpicker_pager);
+		mCardPager = new CardPagerContainer(getContext());
+		mCardPager.setVisibility(View.GONE);
+		((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).addView(mCardPager);
 
 		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mCard
 				.getLayoutParams();
@@ -79,7 +83,11 @@ public class CardPicker extends RelativeLayout {
 	
 	public void setCardAdapter(CardAdapter cardAdapter) {
 		mCardAdapter = cardAdapter;
-		mPager.setAdapter(mCardAdapter);
+		mCardPager.setAdapter(mCardAdapter);
+	}
+	
+	public void setOverlayColor(int color) {
+		mCardPager.setOverlayColor(color);
 	}
 
 	private void setInitialState() {
@@ -108,11 +116,11 @@ public class CardPicker extends RelativeLayout {
 				isCardShown = true;
 				isAnimating = false;
 
-				mAnimationFactory.fadeInView(mPager, FADE_IN_DURATION,
+				mAnimationFactory.fadeInView(mCardPager, FADE_IN_DURATION,
 						new AnimationStartListener() {
 							@Override
 							public void onAnimationStart() {
-								mPager.setVisibility(View.VISIBLE);
+								mCardPager.setVisibility(View.VISIBLE);
 							}
 						});
 			}
@@ -124,14 +132,14 @@ public class CardPicker extends RelativeLayout {
 			return;
 		}
 		
-		setWalletClipDrawable(mCardAdapter.getCardAsDrawable(getContext(), mPager.getCurrentItem()));
+		setWalletClipDrawable(mCardAdapter.getCardAsDrawable(getContext(), mCardPager.getCurrentItem()));
 		
 		isAnimating = true;
-		mAnimationFactory.fadeOutView(mPager, FADE_OUT_DURATION,
+		mAnimationFactory.fadeOutView(mCardPager, FADE_OUT_DURATION,
 				new AnimationEndListener() {
 					@Override
 					public void onAnimationEnd() {
-						mPager.setVisibility(View.GONE);
+						mCardPager.setVisibility(View.GONE);
 						
 						slideDownCard(new AnimationEndListener() {
 							@Override
@@ -221,7 +229,7 @@ public class CardPicker extends RelativeLayout {
 			show();
 		}
 	}
-	
+
 	public void setOnCardClickListener(final OnCardClickListener onCardClickListener) {
 		mCardAdapter.setOnCardClickListener(new OnCardClickListener() {
 			@Override

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 import br.com.zynger.cardpicker.CardAdapter.OnCardClickListener;
 import br.com.zynger.cardpicker.CardPicker;
@@ -17,7 +16,6 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		Button button = (Button) findViewById(R.id.cardpicker_button);
 		CardPicker cardPicker = (CardPicker) findViewById(R.id.cardpicker);
 		CardPagerAdapter cardAdapter = new CardPagerAdapter();
 		cardPicker.setCardAdapter(cardAdapter);
@@ -30,7 +28,5 @@ public class MainActivity extends Activity {
 				return true;
 			}
 		});
-		
-		button.setVisibility(View.GONE);
 	}
 }
