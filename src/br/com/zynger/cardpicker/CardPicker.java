@@ -1,9 +1,5 @@
 package br.com.zynger.cardpicker;
 
-import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
-import android.animation.ValueAnimator;
-import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.ClipDrawable;
@@ -18,6 +14,13 @@ import android.widget.RelativeLayout;
 import br.com.zynger.cardpicker.AnimationFactory.AnimationEndListener;
 import br.com.zynger.cardpicker.AnimationFactory.AnimationStartListener;
 import br.com.zynger.cardpicker.CardAdapter.OnCardClickListener;
+
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.Animator.AnimatorListener;
+import com.nineoldandroids.animation.ValueAnimator;
+import com.nineoldandroids.animation.ValueAnimator.AnimatorUpdateListener;
+import com.nineoldandroids.view.ViewHelper;
+import com.nineoldandroids.view.ViewPropertyAnimator;
 
 public class CardPicker extends RelativeLayout {
 
@@ -79,7 +82,7 @@ public class CardPicker extends RelativeLayout {
 		mCard.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				show();
+				toggle();
 			}
 		});
 		
@@ -103,7 +106,7 @@ public class CardPicker extends RelativeLayout {
 		Drawable blueCard = getContext().getResources().getDrawable(R.drawable.credit_card_blue);
 		setWalletClipDrawable(blueCard);
 		mWalletClipDrawable.setLevel(CARD_CLIP_MIN_VALUE);
-		mCard.setTranslationY(mCardTranslationY);
+		ViewHelper.setTranslationY(mCard, mCardTranslationY);
 	}
 	
 	private void setWalletClipDrawable(Drawable cardDrawable) {
@@ -149,7 +152,6 @@ public class CardPicker extends RelativeLayout {
 					@Override
 					public void onAnimationEnd() {
 						mCardPager.setVisibility(View.GONE);
-						
 						slideDownCard(new AnimationEndListener() {
 							@Override
 							public void onAnimationEnd() {
@@ -162,7 +164,7 @@ public class CardPicker extends RelativeLayout {
 	}
 	
 	private void slideUpCard(final AnimationEndListener endListener) {
-		mCard.animate().setDuration(SLIDE_CARD_DURATION).translationYBy(-mCardTranslationY)
+		ViewPropertyAnimator.animate(mCard).setDuration(SLIDE_CARD_DURATION).translationYBy(-mCardTranslationY)
 				.setListener(new AnimatorListener() {
 					@Override
 					public void onAnimationStart(Animator animation) {
@@ -197,7 +199,7 @@ public class CardPicker extends RelativeLayout {
 	}
 
 	private void slideDownCard(final AnimationEndListener endListener) {
-		mCard.animate().setDuration(SLIDE_CARD_DURATION).translationYBy(mCardTranslationY)
+		ViewPropertyAnimator.animate(mCard).setDuration(SLIDE_CARD_DURATION).translationYBy(mCardTranslationY)
 				.setListener(new AnimatorListener() {
 					@Override
 					public void onAnimationStart(Animator animation) {
